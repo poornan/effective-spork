@@ -1,9 +1,9 @@
 package lk.org.inception;
 
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
@@ -12,30 +12,41 @@ import java.util.zip.ZipInputStream;
 public class ZipTreeBuilder {
 
     /**
-     * Public entry point. It is responsible for creating and closing the stream.
+     * A helper class that wraps an InputStream and prevents it from being closed.
+     * This is crucial for handling nested streams.
      */
-    public ArchiveNode buildTree(Path zipPath) throws IOException {
-        try (InputStream fis = Files.newInputStream(zipPath)) {
-            // The one and only ZipInputStream is created here
-            try (ZipInputStream zis = new ZipInputStream(fis)) {
-                // We now pass the already-created stream to the recursive method
-                return buildTreeFromStream(zis);
-            }
+    private static class NonClosingInputStream extends FilterInputStream {
+        public NonClosingInputStream(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public void close() throws IOException {
+            // Do nothing, shielding the underlying stream from being closed.
         }
     }
 
     /**
-     * This method now processes a ZipInputStream but does NOT close it.
-     * It's designed to be called recursively on a stream that is already open.
+     * Public entry point. It is responsible for creating and closing the initial stream.
      */
-    private ArchiveNode buildTreeFromStream(ZipInputStream zis) throws IOException {
-        ArchiveNode root = new ArchiveNode("/", null);
+    public ArchiveNode buildTree(Path zipPath) throws IOException {
+        try (InputStream fis = new FileInputStream(zipPath.toFile())) {
+            return buildTreeFromStream(fis);
+        }
+    }
 
-        // NO try-with-resources here. The stream is managed by the caller.
-        ZipEntry entry;
-        while ((entry = zis.getNextEntry()) != null) {
-            placeEntryInTree(root, entry, zis);
-            zis.closeEntry();
+    /**
+     * This method correctly creates a ZipInputStream for each archive level
+     * and uses the NonClosingInputStream wrapper for recursion.
+     */
+    private ArchiveNode buildTreeFromStream(InputStream is) throws IOException {
+        ArchiveNode root = new ArchiveNode("/", null);
+        try (ZipInputStream zis = new ZipInputStream(is)) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                placeEntryInTree(root, entry, zis);
+                zis.closeEntry();
+            }
         }
         return root;
     }
@@ -54,8 +65,10 @@ public class ZipTreeBuilder {
         currentNode.getChildren().put(finalName, newNode);
 
         if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".zip")) {
-            // The recursive call now works because it won't close the 'zis' stream.
-            ArchiveNode nestedTree = buildTreeFromStream(zis);
+            // THE FIX:
+            // We are positioned to read the nested zip's data from 'zis'.
+            // We pass 'zis' to the recursive call, but shield it from being closed.
+            ArchiveNode nestedTree = buildTreeFromStream(new NonClosingInputStream(zis));
             newNode.setNestedArchiveRoot(nestedTree);
         }
     }
