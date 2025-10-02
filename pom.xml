@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>lk.org.inception</groupId>
-  <artifactId>zip-tree-builder</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>effective-spork</artifactId>
+  <version>1.0.0</version>
 
   <name>zip-tree-builder</name>
   <!-- FIXME change it to the project's website -->
