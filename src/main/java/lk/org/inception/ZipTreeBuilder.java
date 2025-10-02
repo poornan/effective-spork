@@ -41,5 +41,10 @@ public class ZipTreeBuilder {
         String finalName = path.getFileName().toString();
         ArchiveNode newNode = new ArchiveNode(finalName, entry);
         currentNode.getChildren().put(finalName, newNode);
+        if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".zip")) {
+            // Recursively call the builder on the current stream position
+            ArchiveNode nestedTree = buildTreeFromStream(zis);
+            newNode.setNestedArchiveRoot(nestedTree);
+        }
     }
 }
