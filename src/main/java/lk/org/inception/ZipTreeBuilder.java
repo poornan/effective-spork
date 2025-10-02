@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
@@ -30,7 +31,7 @@ public class ZipTreeBuilder {
      * Public entry point. It is responsible for creating and closing the initial stream.
      */
     public ArchiveNode buildTree(Path zipPath) throws IOException {
-        try (InputStream fis = new FileInputStream(zipPath.toFile())) {
+        try (InputStream fis = Files.newInputStream(zipPath)) {
             return buildTreeFromStream(fis);
         }
     }

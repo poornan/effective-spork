@@ -117,5 +117,25 @@ class ZipTreeBuilderTest {
         assertThat(innerFileNode).isNotNull();
         assertThat(innerFileNode.getName()).isEqualTo("inner.txt");
     }
+    @Test
+    void buildTree_withEmptyFolder_createsEmptyDirectoryNode() throws IOException {
+        // Arrange: Create a zip with an explicit empty folder entry
+        try (OutputStream os = Files.newOutputStream(tempZipFile);
+             ZipOutputStream zos = new ZipOutputStream(os)) {
+            zos.putNextEntry(new ZipEntry("empty_dir/"));
+            zos.closeEntry();
+        }
 
+        // Act
+        ArchiveNode root = builder.buildTree(tempZipFile);
+
+        // Assert
+        assertThat(root.getChildren()).hasSize(1);
+
+        ArchiveNode dirNode = root.getChildren().get("empty_dir");
+        assertThat(dirNode).isNotNull();
+        assertThat(dirNode.getName()).isEqualTo("empty_dir");
+        assertThat(dirNode.isDirectory()).isTrue();
+        assertThat(dirNode.getChildren()).isEmpty();
+    }
 }
