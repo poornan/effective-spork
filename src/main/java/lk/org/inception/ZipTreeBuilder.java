@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,12 +20,26 @@ public class ZipTreeBuilder {
         try (ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                // For this simple test, we don't need path splitting yet.
-                ArchiveNode newNode = new ArchiveNode(entry.getName(), entry);
-                root.getChildren().put(entry.getName(), newNode);
+                placeEntryInTree(root, entry, zis);
                 zis.closeEntry();
             }
         }
         return root;
+    }
+
+    private void placeEntryInTree(ArchiveNode root, ZipEntry entry, ZipInputStream zis) throws IOException {
+        Path path = Paths.get(entry.getName());
+        ArchiveNode currentNode = root;
+
+        // Traverse or create parent directories
+        for (int i = 0; i < path.getNameCount() - 1; i++) {
+            String part = path.getName(i).toString();
+            currentNode = currentNode.getChildren().computeIfAbsent(part, name -> new ArchiveNode(name, null));
+        }
+
+        // Create and place the final node
+        String finalName = path.getFileName().toString();
+        ArchiveNode newNode = new ArchiveNode(finalName, entry);
+        currentNode.getChildren().put(finalName, newNode);
     }
 }
