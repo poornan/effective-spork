@@ -1,6 +1,5 @@
 package lk.org.inception;
 
-import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +21,7 @@ public class ZipTreeBuilder {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             // Do nothing, shielding the underlying stream from being closed.
         }
     }
