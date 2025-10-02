@@ -81,6 +81,7 @@ class ZipTreeBuilderTest {
         assertThat(fileNode).isNotNull();
         assertThat(fileNode.getName()).isEqualTo("hello.txt");
     }
+
     @Test
     void buildTree_withNestedZip_createsSubTree() throws IOException {
         // Arrange: Create an inner zip in memory
@@ -117,6 +118,7 @@ class ZipTreeBuilderTest {
         assertThat(innerFileNode).isNotNull();
         assertThat(innerFileNode.getName()).isEqualTo("inner.txt");
     }
+
     @Test
     void buildTree_withEmptyFolder_createsEmptyDirectoryNode() throws IOException {
         // Arrange: Create a zip with an explicit empty folder entry
@@ -137,5 +139,43 @@ class ZipTreeBuilderTest {
         assertThat(dirNode.getName()).isEqualTo("empty_dir");
         assertThat(dirNode.isDirectory()).isTrue();
         assertThat(dirNode.getChildren()).isEmpty();
+    }
+
+    @Test
+    void buildTree_withEmptyFolderInNestedZip_createsEmptyDirectoryNodeInSubTree() throws IOException {
+        // Arrange: Create an inner zip in memory that contains an empty folder
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream innerZos = new ZipOutputStream(baos)) {
+            innerZos.putNextEntry(new ZipEntry("inner_empty/"));
+            innerZos.closeEntry();
+        }
+        byte[] innerZipBytes = baos.toByteArray();
+
+        // Arrange: Create the outer zip containing the inner one
+        try (OutputStream os = Files.newOutputStream(tempZipFile);
+             ZipOutputStream zos = new ZipOutputStream(os)) {
+            zos.putNextEntry(new ZipEntry("nested.zip"));
+            zos.write(innerZipBytes);
+            zos.closeEntry();
+        }
+
+        // Act
+        ArchiveNode root = builder.buildTree(tempZipFile);
+
+        // Assert
+        // 1. Check the outer structure
+        ArchiveNode nestedZipNode = root.getChildren().get("nested.zip");
+        assertThat(nestedZipNode).isNotNull();
+        assertThat(nestedZipNode.getNestedArchiveRoot()).isNotNull();
+
+        // 2. Check the inner structure (the sub-tree)
+        ArchiveNode nestedRoot = nestedZipNode.getNestedArchiveRoot();
+        assertThat(nestedRoot.getChildren()).hasSize(1);
+
+        ArchiveNode innerDirNode = nestedRoot.getChildren().get("inner_empty");
+        assertThat(innerDirNode).isNotNull();
+        assertThat(innerDirNode.getName()).isEqualTo("inner_empty");
+        assertThat(innerDirNode.isDirectory()).isTrue();
+        assertThat(innerDirNode.getChildren()).isEmpty();
     }
 }
