@@ -3,6 +3,8 @@ package lk.org.inception;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -79,4 +81,41 @@ class ZipTreeBuilderTest {
         assertThat(fileNode).isNotNull();
         assertThat(fileNode.getName()).isEqualTo("hello.txt");
     }
+    @Test
+    void buildTree_withNestedZip_createsSubTree() throws IOException {
+        // Arrange: Create an inner zip in memory
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream innerZos = new ZipOutputStream(baos)) {
+            innerZos.putNextEntry(new ZipEntry("inner.txt"));
+            innerZos.write("inner content".getBytes());
+            innerZos.closeEntry();
+        }
+        byte[] innerZipBytes = baos.toByteArray();
+
+        // Arrange: Create the outer zip containing the inner one
+        try (OutputStream os = Files.newOutputStream(tempZipFile);
+             ZipOutputStream zos = new ZipOutputStream(os)) {
+            zos.putNextEntry(new ZipEntry("nested.zip"));
+            zos.write(innerZipBytes);
+            zos.closeEntry();
+        }
+
+        // Act
+        ArchiveNode root = builder.buildTree(tempZipFile);
+
+        // Assert
+        assertThat(root.getChildren()).hasSize(1);
+        ArchiveNode nestedZipNode = root.getChildren().get("nested.zip");
+        assertThat(nestedZipNode).isNotNull();
+
+        // This is the key assertion that will fail
+        assertThat(nestedZipNode.getNestedArchiveRoot()).isNotNull();
+
+        ArchiveNode nestedRoot = nestedZipNode.getNestedArchiveRoot();
+        assertThat(nestedRoot.getChildren()).hasSize(1);
+        ArchiveNode innerFileNode = nestedRoot.getChildren().get("inner.txt");
+        assertThat(innerFileNode).isNotNull();
+        assertThat(innerFileNode.getName()).isEqualTo("inner.txt");
+    }
+
 }
