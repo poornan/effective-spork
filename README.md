@@ -4,6 +4,8 @@
 [](https://opensource.org/licenses/MIT)
 [](https://www.google.com/search?q=https://search.maven.org/artifact/com.example/zip-tree-builder)
 
+[![Java CI with Maven](https://github.com/poornan/effective-spork/actions/workflows/maven.yml/badge.svg)](https://github.com/poornan/effective-spork/actions/workflows/maven.yml)
+
 `effective-spork` is a lightweight, zero-dependency Java library for deep analysis of ZIP archives. Its primary function is to build a complete, in-memory tree representation of a ZIP file's structure, with first-class support for nested archives.
 
 -----
