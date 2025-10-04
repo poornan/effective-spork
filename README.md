@@ -76,7 +76,7 @@ public class SporkExample {
         
         // 3. (Optional) Print the tree to visualize its structure
         System.out.println("--- Archive Structure ---");
-        root.printTree("");
+        root.printTree();
 
         // 4. Query the tree to find all empty directories
         ArchiveQueryEngine queryEngine = new ArchiveQueryEngine();
