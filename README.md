@@ -58,9 +58,7 @@ Before creating `effective-spork`, several alternatives were considered. Underst
 The library is designed to be simple to use. The workflow involves two main classes: `ZipTreeBuilder` to parse the file, and `ArchiveQueryEngine` to analyze the resulting tree.
 
 ```java
-import com.example.ziptree.ArchiveNode;
-import com.example.ziptree.ArchiveQueryEngine;
-import com.example.ziptree.ZipTreeBuilder;
+import lk.org.inception.EffectiveSpork;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -70,19 +68,17 @@ public class SporkExample {
         // 1. Point to your zip file
         Path myArchive = Paths.get("path/to/your/complex-archive.zip");
 
-        // 2. Build the in-memory tree from the archive
-        ZipTreeBuilder builder = new ZipTreeBuilder();
-        ArchiveNode root = builder.buildTree(myArchive);
-        
-        // 3. (Optional) Print the tree to visualize its structure
-        System.out.println("--- Archive Structure ---");
-        root.printTree();
+        // 2. Load the archive using the simple facade. This does all the parsing.
+        EffectiveSpork spork = EffectiveSpork.load(myArchive);
 
-        // 4. Query the tree to find all empty directories
-        ArchiveQueryEngine queryEngine = new ArchiveQueryEngine();
+        // 3. (Optional) Print the entire tree structure to the console
+        System.out.println("--- Archive Structure ---");
+        System.out.println(spork.getTreeAsString());
+
+        // 4. Query the archive to find all empty directories
         System.out.println("\n--- Finding Empty Directories ---");
-        List<String> emptyDirs = queryEngine.findEmptyDirectories(root);
-        
+        List<String> emptyDirs = spork.findEmptyDirectories();
+
         if (emptyDirs.isEmpty()) {
             System.out.println("No empty directories found.");
         } else {
