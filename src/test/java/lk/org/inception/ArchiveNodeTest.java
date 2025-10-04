@@ -37,7 +37,7 @@ class ArchiveNodeTest {
 
         // Act: Call the new, testable method (which doesn't exist yet).
         String actualOutput = root.getTreeAsString();
-        System.out.println(actualOutput);
+        root.printTree();
 
         // Assert: Check against a precisely formatted expected string.
         String expectedOutput = String.join(System.lineSeparator(),
