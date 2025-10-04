@@ -58,7 +58,7 @@ Before creating `effective-spork`, several alternatives were considered. Underst
 The library is designed to be simple to use. The workflow involves two main classes: `ZipTreeBuilder` to parse the file, and `ArchiveQueryEngine` to analyze the resulting tree.
 
 ```java
-import lk.org.inception.EffectiveSpork;
+import com.example.ziptree.EffectiveSpork;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -75,14 +75,15 @@ public class SporkExample {
         System.out.println("--- Archive Structure ---");
         System.out.println(spork.getTreeAsString());
 
-        // 4. Query the archive to find all empty directories
-        System.out.println("\n--- Finding Empty Directories ---");
-        List<String> emptyDirs = spork.findEmptyDirectories();
-
-        if (emptyDirs.isEmpty()) {
-            System.out.println("No empty directories found.");
-        } else {
+        // 4. Efficiently check if an empty directory exists
+        System.out.println("\n--- Checking for Empty Directories ---");
+        if (spork.hasEmptyDirectory()) {
+            System.out.println("✅ An empty directory was found! Here is the full list:");
+            // If the check passes, you can then get the complete list.
+            List<String> emptyDirs = spork.findEmptyDirectories();
             emptyDirs.forEach(System.out::println);
+        } else {
+            System.out.println("❌ No empty directories were found in the archive.");
         }
     }
 }
