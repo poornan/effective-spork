@@ -58,7 +58,7 @@ Before creating `effective-spork`, several alternatives were considered. Underst
 The library is designed to be simple to use. The workflow involves two main classes: `ZipTreeBuilder` to parse the file, and `ArchiveQueryEngine` to analyze the resulting tree.
 
 ```java
-import com.example.ziptree.EffectiveSpork;
+import lk.org.inception.EffectiveSpork;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
