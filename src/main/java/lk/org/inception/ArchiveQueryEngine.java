@@ -10,7 +10,7 @@ public class ArchiveQueryEngine {
      * @param startNode The root node of the tree or sub-tree to search.
      * @return A list of full paths to each empty directory found.
      */
-    public List<String> findEmptyDirectories(ArchiveNode startNode) {
+    public static List<String> findEmptyDirectories(ArchiveNode startNode) {
         List<String> results = new ArrayList<>();
         findEmptyDirsRecursive(startNode, "", results);
         return results;
@@ -19,7 +19,7 @@ public class ArchiveQueryEngine {
     /**
      * Recursively traverses the tree to find and collect paths of empty directories.
      */
-    private void findEmptyDirsRecursive(ArchiveNode currentNode, String currentPath, List<String> results) {
+    private static void findEmptyDirsRecursive(ArchiveNode currentNode, String currentPath, List<String> results) {
         // Construct the full path for the current node
         String nodePath = currentPath.isEmpty() ?
                 currentNode.getName() :
@@ -49,7 +49,7 @@ public class ArchiveQueryEngine {
      * @param startNode The root node of the tree or sub-tree to check.
      * @return true if an empty directory is found, false otherwise.
      */
-    public boolean hasEmptyDirectory(ArchiveNode startNode) {
+    public static boolean hasEmptyDirectory(ArchiveNode startNode) {
         // Check if the current node itself is an empty directory
         if (startNode.isDirectory() && startNode.getChildren().isEmpty()) {
             return true;

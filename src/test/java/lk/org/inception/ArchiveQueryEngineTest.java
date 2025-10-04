@@ -15,12 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ArchiveQueryEngineTest {
 
-    private ArchiveQueryEngine queryEngine;
     private ZipTreeBuilder treeBuilder;
 
     @BeforeEach
     void setUp() {
-        queryEngine = new ArchiveQueryEngine();
         treeBuilder = new ZipTreeBuilder();
     }
 
@@ -31,7 +29,7 @@ class ArchiveQueryEngineTest {
         ArchiveNode root = treeBuilder.buildTree(testZip);
 
         // Act
-        List<String> emptyDirs = queryEngine.findEmptyDirectories(root);
+        List<String> emptyDirs = ArchiveQueryEngine.findEmptyDirectories(root);
 
         // Assert
         assertThat(emptyDirs).containsExactlyInAnyOrder(
@@ -51,7 +49,7 @@ class ArchiveQueryEngineTest {
         ArchiveNode root = treeBuilder.buildTree(testZip);
 
         // Act & Assert
-        assertThat(queryEngine.hasEmptyDirectory(root)).isTrue();
+        assertThat(ArchiveQueryEngine.hasEmptyDirectory(root)).isTrue();
 
         // Cleanup
         Files.delete(testZip);
@@ -70,7 +68,7 @@ class ArchiveQueryEngineTest {
         ArchiveNode root = treeBuilder.buildTree(testZip);
 
         // Act & Assert
-        assertThat(queryEngine.hasEmptyDirectory(root)).isFalse();
+        assertThat(ArchiveQueryEngine.hasEmptyDirectory(root)).isFalse();
 
         // Cleanup
         Files.delete(testZip);
