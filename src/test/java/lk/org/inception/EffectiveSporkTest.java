@@ -68,4 +68,46 @@ class EffectiveSporkTest {
         }
         return tempFile;
     }
+
+    @Test
+    void load_whenEmptyFilesExist_queriesReturnCorrectResults() throws IOException {
+        // Arrange: Create a zip with empty files at various levels
+        Path testZip = createComplexTestZipWithEmptyFiles();
+
+        // Act
+        EffectiveSpork spork = EffectiveSpork.load(testZip);
+
+        // Assert
+        assertThat(spork.hasEmptyFile()).isTrue();
+        assertThat(spork.findEmptyFiles()).containsExactlyInAnyOrder(
+                "//empty.txt",
+                "//nested.zip/inner_empty.txt"
+        );
+
+        // Cleanup
+        Files.delete(testZip);
+    }
+
+    private Path createComplexTestZipWithEmptyFiles() throws IOException {
+        Path tempFile = Files.createTempFile("test-empty-files-", ".zip");
+
+        // Create inner zip (nested.zip) with an empty file
+        ByteArrayOutputStream nestedBaos = new ByteArrayOutputStream();
+        try (ZipOutputStream nestedZos = new ZipOutputStream(nestedBaos)) {
+            nestedZos.putNextEntry(new ZipEntry("inner_empty.txt"));
+            nestedZos.closeEntry(); // 0 bytes
+        }
+
+        // Create outer zip with an empty file and the nested zip
+        try (OutputStream os = Files.newOutputStream(tempFile);
+             ZipOutputStream zos = new ZipOutputStream(os)) {
+            zos.putNextEntry(new ZipEntry("empty.txt"));
+            zos.closeEntry(); // 0 bytes
+            zos.putNextEntry(new ZipEntry("nested.zip"));
+            zos.write(nestedBaos.toByteArray());
+            zos.closeEntry();
+        }
+
+        return tempFile;
+    }
 }
