@@ -85,6 +85,17 @@ public class SporkExample {
         } else {
             System.out.println("❌ No empty directories were found in the archive.");
         }
+
+        // 5. Efficiently check if an empty file exists
+        System.out.println("\n--- Checking for Empty Files ---");
+        if (spork.hasEmptyFile()) {
+            System.out.println("✅ An empty file was found! Here is the full list:");
+            // If the check passes, you can then get the complete list.
+            List<String> emptyFiles = spork.findEmptyFiles();
+            emptyFiles.forEach(System.out::println);
+        } else {
+            System.out.println("❌ No empty files were found in the archive.");
+        }
     }
 }
 ```
