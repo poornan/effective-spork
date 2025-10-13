@@ -72,4 +72,66 @@ public class ArchiveQueryEngine {
         // Scanned the entire branch and found nothing
         return false;
     }
+
+    /**
+     * Traverses the tree to find all empty files (size 0).
+     * @param startNode The root node of the tree or sub-tree to search.
+     * @return A list of full paths to each empty file found.
+     */
+    public static List<String> findEmptyFiles(ArchiveNode startNode) {
+        List<String> results = new ArrayList<>();
+        findEmptyFilesRecursive(startNode, "", results);
+        return results;
+    }
+
+    private static void findEmptyFilesRecursive(ArchiveNode currentNode, String currentPath, List<String> results) {
+        String nodePath = currentPath.isEmpty() ?
+                currentNode.getName() :
+                currentPath + "/" + currentNode.getName();
+
+        // Check if the current node is an empty file
+        if (!currentNode.isDirectory() && currentNode.getEntry() != null && currentNode.getEntry().getSize() == 0) {
+            results.add(nodePath);
+        }
+
+        // Recurse into nested archives
+        if (currentNode.getNestedArchiveRoot() != null) {
+            for (ArchiveNode child : currentNode.getNestedArchiveRoot().getChildren().values()) {
+                findEmptyFilesRecursive(child, nodePath, results);
+            }
+        }
+
+        // Recurse into children
+        for (ArchiveNode child : currentNode.getChildren().values()) {
+            findEmptyFilesRecursive(child, nodePath, results);
+        }
+    }
+
+    /**
+     * Quickly checks if the tree contains at least one empty file.
+     * @param startNode The root node of the tree or sub-tree to check.
+     * @return true if an empty file is found, false otherwise.
+     */
+    public static boolean hasEmptyFile(ArchiveNode startNode) {
+        // Check if the current node is an empty file
+        if (!startNode.isDirectory() && startNode.getEntry() != null && startNode.getEntry().getSize() == 0) {
+            return true;
+        }
+
+        // Check inside a nested archive
+        if (startNode.getNestedArchiveRoot() != null) {
+            if (hasEmptyFile(startNode.getNestedArchiveRoot())) {
+                return true;
+            }
+        }
+
+        // Check all children
+        for (ArchiveNode child : startNode.getChildren().values()) {
+            if (hasEmptyFile(child)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

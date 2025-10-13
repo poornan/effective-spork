@@ -58,4 +58,20 @@ public class EffectiveSpork {
     public boolean hasEmptyDirectory() {
         return ArchiveQueryEngine.hasEmptyDirectory(this.rootNode);
     }
+
+    /**
+     * Finds all empty files (size 0) within the archive.
+     * @return A list of full paths to each empty file.
+     */
+    public List<String> findEmptyFiles() {
+        return ArchiveQueryEngine.findEmptyFiles(this.rootNode);
+    }
+
+    /**
+     * Quickly checks if the archive contains at least one empty file.
+     * @return true if an empty file is found, false otherwise.
+     */
+    public boolean hasEmptyFile() {
+        return ArchiveQueryEngine.hasEmptyFile(this.rootNode);
+    }
 }
