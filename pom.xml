@@ -103,4 +103,11 @@
       </plugins>
     </pluginManagement>
   </build>
+  <distributionManagement>
+    <repository>
+      <id>github-poornan</id>
+      <name>GitHub OWNER Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/poornan/effective-spork</url>
+    </repository>
+  </distributionManagement>
 </project>
