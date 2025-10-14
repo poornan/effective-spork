@@ -1,7 +1,10 @@
 package lk.org.inception;
 
+import lk.org.inception.visitors.*;
+
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,7 +51,9 @@ public class EffectiveSpork {
      * @return A list of full paths to each empty directory.
      */
     public List<String> findEmptyDirectories() {
-        return ArchiveQueryEngine.findEmptyDirectories(this.rootNode);
+        FindEmptyDirectoriesVisitor visitor = new FindEmptyDirectoriesVisitor();
+        this.process(visitor);
+        return visitor.getResult();
     }
 
     /**
@@ -56,7 +61,9 @@ public class EffectiveSpork {
      * @return true if an empty directory is found, false otherwise.
      */
     public boolean hasEmptyDirectory() {
-        return ArchiveQueryEngine.hasEmptyDirectory(this.rootNode);
+        HasEmptyDirectoryVisitor visitor = new HasEmptyDirectoryVisitor();
+        this.process(visitor);
+        return visitor.getResult();
     }
 
     /**
@@ -64,7 +71,10 @@ public class EffectiveSpork {
      * @return A list of full paths to each empty file.
      */
     public List<String> findEmptyFiles() {
-        return ArchiveQueryEngine.findEmptyFiles(this.rootNode);
+        FindEmptyFilesVisitor visitor = new FindEmptyFilesVisitor();
+        this.process(visitor);
+        return visitor.getResult();
+
     }
 
     /**
@@ -72,6 +82,57 @@ public class EffectiveSpork {
      * @return true if an empty file is found, false otherwise.
      */
     public boolean hasEmptyFile() {
-        return ArchiveQueryEngine.hasEmptyFile(this.rootNode);
+        HasEmptyFileVisitor visitor = new HasEmptyFileVisitor();
+        this.process(visitor);
+        return visitor.getResult();
+    }
+
+    /**
+     * Processes the loaded archive tree with one or more visitors.
+     * This is the primary method for running custom analysis.
+     * @param visitors A list of visitors to run over the tree.
+     */
+    public void process(TreeVisitor<?>... visitors) {
+        traverse(this.rootNode, "", Arrays.asList(visitors));
+    }
+
+    /**
+     * The recursive engine that walks the tree and applies visitors.
+     */
+    private void traverse(ArchiveNode currentNode, String currentPath, List<TreeVisitor<?>> visitors) {
+        String nodePath = currentPath.isEmpty() ?
+                currentNode.getName() :
+                currentPath + "/" + currentNode.getName();
+
+        // Apply all visitors to the current node
+        for (TreeVisitor<?> visitor : visitors) {
+            visitor.visit(currentNode, nodePath);
+        }
+
+        // Recurse into the nested archive's children
+        if (currentNode.getNestedArchiveRoot() != null) {
+            for (ArchiveNode child : currentNode.getNestedArchiveRoot().getChildren().values()) {
+                traverse(child, nodePath, visitors);
+            }
+        }
+
+        // Recurse into the current node's children
+        for (ArchiveNode child : currentNode.getChildren().values()) {
+            traverse(child, nodePath, visitors);
+        }
+    }
+
+    /**
+     * Finds all files in the archive larger than a specified size.
+     * This is the new, simple API method.
+     * @param sizeInBytes The size threshold.
+     * @return A list of paths to files larger than the threshold.
+     */
+    public List<String> findFilesLargerThan(long sizeInBytes) {
+        // Internally, it uses our powerful visitor pattern...
+        FindFilesLargerThanVisitor visitor = new FindFilesLargerThanVisitor(sizeInBytes);
+        this.process(visitor);
+        // ...but the user doesn't need to know that.
+        return visitor.getResult();
     }
 }

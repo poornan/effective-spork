@@ -79,7 +79,6 @@ public class SporkExample {
         System.out.println("\n--- Checking for Empty Directories ---");
         if (spork.hasEmptyDirectory()) {
             System.out.println("✅ An empty directory was found! Here is the full list:");
-            // If the check passes, you can then get the complete list.
             List<String> emptyDirs = spork.findEmptyDirectories();
             emptyDirs.forEach(System.out::println);
         } else {
@@ -90,11 +89,22 @@ public class SporkExample {
         System.out.println("\n--- Checking for Empty Files ---");
         if (spork.hasEmptyFile()) {
             System.out.println("✅ An empty file was found! Here is the full list:");
-            // If the check passes, you can then get the complete list.
             List<String> emptyFiles = spork.findEmptyFiles();
             emptyFiles.forEach(System.out::println);
         } else {
             System.out.println("❌ No empty files were found in the archive.");
+        }
+
+        // 6. Find files larger than a specific size
+        System.out.println("\n--- Checking for Files Larger Than 1 KB ---");
+        long oneKilobyte = 1024;
+        List<String> largeFiles = spork.findFilesLargerThan(oneKilobyte);
+
+        if (!largeFiles.isEmpty()) {
+            System.out.println("✅ Found " + largeFiles.size() + " file(s) larger than 1 KB:");
+            largeFiles.forEach(System.out::println);
+        } else {
+            System.out.println("❌ No files larger than 1 KB were found.");
         }
     }
 }

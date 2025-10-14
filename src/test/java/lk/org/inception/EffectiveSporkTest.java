@@ -1,11 +1,13 @@
 package lk.org.inception;
 
+import lk.org.inception.visitors.FindFilesLargerThanVisitor;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -108,6 +110,48 @@ class EffectiveSporkTest {
             zos.closeEntry();
         }
 
+        return tempFile;
+    }
+
+    @Test
+    void givenArchiveWithVariousFileSizes_whenProcessingWithLargeFileVisitor_thenOnlyLargeFileIsFound() throws IOException {
+        // Given: A ZIP archive exists with a mix of small, medium, and large files.
+        Path testZip = createZipWithVariousFileSizes();
+        EffectiveSpork spork = EffectiveSpork.load(testZip);
+
+        // When: The user processes the archive with a visitor designed to find large files.
+        List<String> largeFiles = spork.findFilesLargerThan(100);
+
+        // Then: The result from the visitor should contain only the path to the large file.
+        assertThat(largeFiles)
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly("//large.txt");
+
+        // Cleanup
+        Files.delete(testZip);
+    }
+
+    /**
+     * Helper method to create a zip with specific file sizes for testing.
+     */
+    private Path createZipWithVariousFileSizes() throws IOException {
+        Path tempFile = Files.createTempFile("test-sizes-", ".zip");
+        try (OutputStream os = Files.newOutputStream(tempFile);
+             ZipOutputStream zos = new ZipOutputStream(os)) {
+
+            zos.putNextEntry(new ZipEntry("small.txt"));
+            zos.write(new byte[50]); // Smaller than threshold
+            zos.closeEntry();
+
+            zos.putNextEntry(new ZipEntry("medium.txt"));
+            zos.write(new byte[100]); // Exactly at threshold
+            zos.closeEntry();
+
+            zos.putNextEntry(new ZipEntry("large.txt"));
+            zos.write(new byte[150]); // Larger than threshold
+            zos.closeEntry();
+        }
         return tempFile;
     }
 }
