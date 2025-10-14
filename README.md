@@ -109,7 +109,62 @@ public class SporkExample {
     }
 }
 ```
+-----
 
+## 📦 Using as a Dependency
+
+`effective-spork` is hosted on GitHub Packages. To use it in your own Maven project, you need to configure your `pom.xml` and `settings.xml` files.
+
+### Step 1: Add the Repository to your `pom.xml`
+
+Add this repository configuration to your `pom.xml`. This tells Maven where to find the `effective-spork` package. **Remember to replace `OWNER` and `REPOSITORY`** with the appropriate GitHub username/organization and repo name.
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <name>GitHub OWNER Apache Maven Packages</name>
+        <url>https://maven.pkg.github.com/poornan/effective-spork</url>
+    </repository>
+</repositories>
+```
+
+### Step 2: Add the Dependency to your `pom.xml`
+
+Add the `effective-spork` dependency to your `pom.xml`.
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>lk.org.inception</groupId>
+        <artifactId>effective-spork</artifactId>
+        <version>2.0.0.2</version>
+    </dependency>
+</dependencies>
+```
+
+### Step 3: Authenticate with GitHub Packages
+
+You need to authenticate by adding your GitHub credentials to your `settings.xml` file, which is typically located at `~/.m2/settings.xml`.
+
+1.  **Create a Personal Access Token (PAT)** on GitHub with the `read:packages` scope. You can find instructions here: [Creating a personal access token](https://www.google.com/search?q=https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens%23creating-a-personal-access-token-classic).
+2.  **Add a server entry** to your `settings.xml` file. The `<id>` must match the repository ID from your `pom.xml` (in this case, `github`).
+
+<!-- end list -->
+
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_PAT</password>
+    </server>
+  </servers>
+</settings>
+```
+
+After these steps, running `mvn install` in your project will successfully download the `effective-spork` dependency from GitHub Packages.
 -----
 
 ## 🛠️ Development
