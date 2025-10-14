@@ -1,10 +1,14 @@
 # effective-spork
-
-[](https://www.google.com/search?q=https://github.com/user/effective-spork)
+[](https://www.google.com/search?q=https://github.com/poornan)
+[](https://www.google.com/search?q=https://github.com/poornan/effective-spork)
 [](https://opensource.org/licenses/MIT)
-[](https://www.google.com/search?q=https://search.maven.org/artifact/com.example/zip-tree-builder)
+[](https://www.google.com/search?q=https://search.maven.org/artifact/lk.org.inception/effective-spork)
+[](https://www.google.com/search?q=effective-spork)
 
 [![Java CI with Maven](https://github.com/poornan/effective-spork/actions/workflows/maven.yml/badge.svg)](https://github.com/poornan/effective-spork/actions/workflows/maven.yml)
+[![Maven Package](https://github.com/poornan/effective-spork/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/poornan/effective-spork/actions/workflows/maven-publish.yml)
+[![CodeQL](https://github.com/poornan/effective-spork/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/poornan/effective-spork/actions/workflows/github-code-scanning/codeql)
+[![Automatic Dependency Submission](https://github.com/poornan/effective-spork/actions/workflows/dependency-graph/auto-submission/badge.svg)](https://github.com/poornan/effective-spork/actions/workflows/dependency-graph/auto-submission)
 
 `effective-spork` is a lightweight, zero-dependency Java library for deep analysis of ZIP archives. Its primary function is to build a complete, in-memory tree representation of a ZIP file's structure, with first-class support for nested archives.
 
